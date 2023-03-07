@@ -9,6 +9,9 @@ const app =express()
 app.set('view engine','pug')
 app.set('views','./views')
 
+//Carpeta Publica 
+app.use(express.static('public'))
+
 //Routing
 app.use('/auth',usuarioRoutes)
 
