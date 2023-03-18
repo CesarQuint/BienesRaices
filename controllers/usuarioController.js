@@ -1,6 +1,7 @@
 import { check,validationResult  } from 'express-validator'
 import Usuario from '../models/Usuario.js'
 import {generarId} from '../helpers/token.js'
+import { emailRegistro } from '../helpers/emails.js'
 
 
 const formularioLogin=(req,res)=>{
@@ -39,6 +40,7 @@ const registrar=async (req,res)=>{
       
     }
 
+    const {nombre,email,password}=req.body
     //Verificar que no haya usuarios duplicados
     const existeUsuario=await Usuario.findOne({where:{email:req.body.email}})
     if(existeUsuario){
@@ -53,16 +55,25 @@ const registrar=async (req,res)=>{
     }
 
     //Almacenar un usuario
-    
-    await Usuario.create({
+    const usuario =await Usuario.create({
         nombre,
         email,
         password,
         token:generarId()
     })
 
-    const usuario=await Usuario.create(req.body)
-    res.json(usuario)
+    //Envia email de confirmacion
+    emailRegistro({
+        nombre:usuario.nombre,
+        email:usuario.email,
+        token:usuario.token
+    })
+
+  //Mostrar mensaje de confirmacion 
+  res.render('templates/mensaje',{
+    pagina:'Cuenta Creada Correctamente',
+    mensaje:'Hemos Enviado un Email de Confirmacion,presiona en el enlace'
+  })
 }
 
 const formularioOlvidePassword=(req,res)=>{
