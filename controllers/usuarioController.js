@@ -12,7 +12,8 @@ const formularioLogin=(req,res)=>{
 
 const formularioRegistro=(req,res)=>{
     res.render('auth/registro',{
-        pagina:'Crear Cuenta'
+        pagina:'Crear Cuenta',
+        csrfToken : req.csrfToken()
     })
 }
 
@@ -31,6 +32,7 @@ const registrar=async (req,res)=>{
         console.log(req.body.email);
         return res.render('auth/registro',{
             pagina:'Crear Cuenta',
+            csrfToken : req.csrfToken(),
             errores:resultado.array(),
             usuario:{
                 nombre:req.body.nombre,
@@ -99,15 +101,32 @@ const confirmar=async(req,res)=>{
 
     res.render('auth/confirmar-cuenta',{
         pagina:'Cuenta Confirmada',
-        mensaje:'La cuenta se confirmo Correctamente',
-        error:true
+        mensaje:'La cuenta se confirmo Correctamente'
     })
 }
 
 const formularioOlvidePassword=(req,res)=>{
     res.render('auth/olvide-password',{
-        pagina:'Recupera tu acceso a Bienes raices'
+        pagina:'Recupera tu acceso a Bienes raices',
+        csrfToken : req.csrfToken()
     })
+}
+
+const resetPassword = async (req,res) => {
+ //Validacion 
+ await check('email').isEmail().withMessage('Eso no parece un Email').run(req)
+
+ let resultado=validationResult(req)
+
+ //Verificacion de que el resultado este vacio
+ if(!resultado.isEmpty()){
+     console.log(req.body.email);
+     return res.render('auth/olvide-password',{
+            pagina:'Crear Cuenta',
+            csrfToken : req.csrfToken(),
+            errores: resultado.array()
+        }) 
+    }
 }
 
 
@@ -116,5 +135,6 @@ export {
     formularioRegistro,
     formularioOlvidePassword,
     registrar,
-    confirmar
+    confirmar,
+    resetPassword
 }
