@@ -1,5 +1,5 @@
 import express from 'express'
-import { formularioLogin, formularioRegistro,formularioOlvidePassword ,registrar,confirmar,resetPassword} from '../controllers/usuarioController.js'
+import { formularioLogin, formularioRegistro,formularioOlvidePassword ,registrar,confirmar,resetPassword,comprobarToken,nuevoPassword} from '../controllers/usuarioController.js'
 
 const  router =express.Router()
 
@@ -13,5 +13,10 @@ router.get('/confirmar/:token',confirmar)
 router.get('/olvide-password',formularioOlvidePassword)
 
 router.post('/olvide-password',resetPassword)
+
+//Almacenar el nuevo Password
+router.get('/olvide-password/:token',comprobarToken)
+router.post('/olvide-password/:token',nuevoPassword)
+
 
 export default router

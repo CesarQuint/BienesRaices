@@ -1,7 +1,7 @@
 import { check,validationResult  } from 'express-validator'
 import Usuario from '../models/Usuario.js'
 import {generarId} from '../helpers/token.js'
-import { emailRegistro } from '../helpers/emails.js'
+import { emailRegistro,emailOlvidePassword } from '../helpers/emails.js'
 
 
 const formularioLogin=(req,res)=>{
@@ -120,15 +120,67 @@ const resetPassword = async (req,res) => {
 
  //Verificacion de que el resultado este vacio
  if(!resultado.isEmpty()){
-     console.log(req.body.email);
      return res.render('auth/olvide-password',{
             pagina:'Crear Cuenta',
             csrfToken : req.csrfToken(),
             errores: resultado.array()
         }) 
     }
+
+    const { email } = req.body
+
+    const usuario = await Usuario.findOne({where: {email}})
+
+    if(!usuario){
+        console.log(req.body.email);
+        return res.render('auth/olvide-password',{
+               pagina:'Recupera tu acceso a Bienes Raices ',
+               csrfToken : req.csrfToken(),
+               errores: [{msg: 'El email no Pertenece a ningun usuario'}]
+           }) 
+       }
+    
+    //Generar un token 
+    usuario.token = generarId()
+    await usuario.save()
+
+    //Enviar un email
+    emailOlvidePassword({
+        email: usuario.email,
+        nombre: usuario.nombre,
+        token: usuario.token
+    })
+
+    //Mostrar mensaje de confirmacion
+    res.render('templates/mensaje',{
+        pagina:'Reestablece tu password',
+        mensaje: 'Hemos enviado un email con las instrucciones'
+    })
 }
 
+const comprobarToken = async (req,res) =>{
+
+    const { token } =req.params
+
+    const usuario = await Usuario.findOne({where: {token}})
+    if(!usuario) {
+        return res.render('auth/confirmar-cuenta',{
+            pagina: 'Reestablece tu password',
+            mensaje: 'Hubo un error al validar tu informacion,intenta de nuevo',
+            error: true
+        })
+    }
+
+    //Mostrar formulario para modificar el password
+    res.render('auth/reset-password',{
+        pagina: 'Reestablece tu password',
+        csrfToken: req.csrfToken()
+    })
+}
+
+const nuevoPassword = (req,res) =>{
+    
+}
 
 export {
     formularioLogin,
@@ -136,5 +188,7 @@ export {
     formularioOlvidePassword,
     registrar,
     confirmar,
-    resetPassword
+    resetPassword,
+    comprobarToken,
+    nuevoPassword
 }
