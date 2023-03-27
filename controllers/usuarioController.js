@@ -1,8 +1,8 @@
-import { check,validationResult  } from 'express-validator'
+import { check, validationResult  } from 'express-validator'
 import bcrypt from 'bcrypt'
 import Usuario from '../models/Usuario.js'
-import {generarId} from '../helpers/token.js'
-import { emailRegistro,emailOlvidePassword } from '../helpers/emails.js'
+import { generarId, generarJWT } from '../helpers/token.js'
+import { emailRegistro, emailOlvidePassword } from '../helpers/emails.js'
 
 
 const formularioLogin=(req,res)=>{
@@ -14,10 +14,60 @@ const formularioLogin=(req,res)=>{
 
 const autenticar = async (req,res) => {
 
+    //Validacion
+    await check('email').isEmail().withMessage('El Email no es correcto').run(req)
+    await check('password').notEmpty().withMessage('El Password es Obligatorio').run(req)
 
+    let resultado=validationResult(req)
+
+    //Verificacion de que el resultado este vacio
+    if(!resultado.isEmpty()){
+        console.log(req.body.email);
+        return res.render('auth/login',{
+            pagina:'Iniciar Sesion',
+            csrfToken : req.csrfToken(),
+            errores:resultado.array(),
+        }) 
+    }
+
+    const { email, password } = req.body
+
+    //Comprobar si existe el usuario
+    const usuario = await Usuario.findOne({ where: { email }})
+    if(!usuario){
+        return res.render('auth/login',{
+            pagina: 'Iniciar Sesion',
+            csrfToken : req.csrfToken(),
+            errores: [{msg: 'El Usuario No Existe'}]
+        }) 
+    }
+
+    //Comprobar si el usuario esta confirmado
+    if(!usuario.confirmado){
+        return res.render('auth/login',{
+            pagina: 'Iniciar Sesion',
+            csrfToken : req.csrfToken(),
+            errores: [{msg: 'Tu Cuenta no ha sido Confirmada'}]
+        }) 
+    }
+
+    //Comprobar el Password
+    if(!usuario.verificarPassword(password)){
+        return res.render('auth/login',{
+            pagina: 'Iniciar Sesion',
+            csrfToken : req.csrfToken(),
+            errores: [{msg: 'El password es Incorrecto'}]
+        }) 
+    }
+
+    //Autenticar al Usuario
+    const token = generarJWT({ id: usuario.id, nombre: usuario.id })
+    
+    console.log(token);
 }
 
 const formularioRegistro=(req,res)=>{
+
     res.render('auth/registro',{
         pagina:'Crear Cuenta',
         csrfToken : req.csrfToken()
