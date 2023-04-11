@@ -1,5 +1,9 @@
 extends ../layout/index
 
+block styles 
+    link(rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css")
+    
+
 block contenido
     div(class="py-10")
         h1.text-4xl.my-10.font-extrabold.text-center Bienes
@@ -15,6 +19,9 @@ block contenido
                     div 
                         label(class="block text-sm uppercase text-gray-500 mb-3 font-bold" for="titulo") Titulo de Anuncio
                         input(id="titulo" class="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400" placeholder="Titulo Propiedad,ej. Casa en la Playa" type="text" name="titulo")
+                    div 
+                        label(class="block text-sm uppercase text-gray-500 mb-3 font-bold" for="titulo") Descripcion
+                        textarea(id="descripcion" class="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400" placeholder="Descripcion de la propiedad" name="descripcion")
                     
                     div(class="md:flex md:gap-4 space-y-5 md:space-y-0")
                     
@@ -51,6 +58,17 @@ block contenido
                                 - var n = 1;
                                     while n < 5
                                         option(value=n) #{n++} 
+                    .border-gray-200.border-t.py-5.space-y-5
+                        h3.text-lg.leading-6.font-medium.text-gray-900 Informacion General 
+                        p.text-gray-600 Añade informacion sobre la propiedad en venta 
+                        #mapa.h-96
+
+                        div 
+                            p.calle 
+                        
+                        input(type="hidden" name="calle" id="calle")
+                        input(type="hidden" name="lat" id="lat")
+                        input(type="hidden" name="lng" id="lng")
 
 block scripts
     script(src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js")

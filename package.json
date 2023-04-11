@@ -8,7 +8,8 @@
     "start": "node ./index.js",
     "server": "nodemon index.js",
     "css": "postcss public/css/tailwind.css -o public/css/app.css --watch",
-    "js":"webpack --watch"
+    "js": "webpack --watch",
+    "dev":"concurrently \"npm run css\" \"npm run js\""
   },
   "author": "Cesar Quintero",
   "license": "ISC",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",
+    "concurrently": "^8.0.1",
     "nodemon": "^2.0.21",
     "postcss": "^8.4.21",
     "postcss-cli": "^10.1.0",
