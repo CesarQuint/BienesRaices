@@ -15,7 +15,7 @@ router.post('/propiedades/crear',
     body('habitaciones').isNumeric().withMessage('Selecciona la cantidad de Habitaciones'),
     body('estacionamiento').isNumeric().withMessage('Selecciona la cantidad de Estacionamientos'),
     body('wc').isNumeric().withMessage('Selecciona la cantidad de Baños'),
-    body('estacionamiento').notEmpty().withMessage('Ubica la propiedad en el Mapa')
+    body('calle').notEmpty().withMessage('Ubica la propiedad en el Mapa')
     ,guardar)
 
 export default router
